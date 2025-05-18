@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "FoldersSynchronisation": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Users\\User\\TestFrom\r\nC:\\Users\\User\\TestTo\r\nC:\\Users\\User\\FoldersSyncLogs\\folders_sync.log\r\n5\r\ndryrun"
+    }
+  }
+}
