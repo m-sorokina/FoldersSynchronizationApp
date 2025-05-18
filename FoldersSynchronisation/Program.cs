@@ -21,16 +21,18 @@ namespace FoldersSynchronization
             string? logLevelArg = args.Length > 4 ? args[4] : "inf";
             bool dryRun = args.Length == 6 && args[5].Equals("dryrun", StringComparison.OrdinalIgnoreCase);
 
-            if (ValidateArguments(sourceFolder, replicaFolder, logFile, logLevelArg, syncIntervalArg,  out int syncInterval))
+            if (ValidateArguments(sourceFolder, logFile, logLevelArg, syncIntervalArg,  out int syncInterval))
             {
                 var session = new SynchronizeSession
                 {
-                    DryRun = false, //dryRun,
+                    DryRun = dryRun,
                     Logger = Log.Logger
                 };
+                Log.Information($"Loaded configuration: source = {sourceFolder}, replica = {sourceFolder}, interval = {syncInterval}, log path = {logFile}, log level = {logLevelArg.ToUpper()}, dry run = {dryRun}");
+
                 while (true)
                 {
-                    Log.Information($"Synchronization is starting");
+                    Log.Information($"Synchronization is starting...");
                     session.Synchronize(sourceFolder,replicaFolder);
                     Log.Information($"Synchronization completed\n");
                     Thread.Sleep(syncInterval * 1000);
@@ -40,7 +42,7 @@ namespace FoldersSynchronization
             Log.Information("Application shutdown complete");
         }
 
-        private static bool ValidateArguments(string sourceFolder, string replicaFolder, string logFile, string logLevelArg, string syncIntervalArg, out int syncInterval)
+        private static bool ValidateArguments(string sourceFolder, string logFile, string logLevelArg, string syncIntervalArg, out int syncInterval)
         {
             syncInterval = 0;
             try
