@@ -57,16 +57,17 @@ ________________________________________________________________________________
 1. Log output to the console and log file - done
 1. Create a loop for synchronization - done
 1. Create a method for synchronization a folder with only files: 
-	a. compare
-	b. create folder
-	c. copy file
-	d. remove folder
-	e. remove file
+	a. compare - done?
+	b. create folder - done
+	c. copy file - done
+	d. remove folder - done
+	e. remove file - done
 	f. hash code processing
-1. Create a method for synchronization with nested folders (folders and subfolders with files)
+1. Create a method for synchronization with nested folders (folders and subfolders with files) - done
 1. Create a test project with unit tests for the methods
 1. Add additional arguments validation: 1,2,3,4 from questions validation section
 1. Add configuration file for the application (e.g. appsettings.json) to store default values for the parameters
+1. Add additional argument for log level changing - done
 ____________________________________________________________________________________________
 **Questions:**  
 General  

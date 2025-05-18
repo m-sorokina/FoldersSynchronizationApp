@@ -10,90 +10,200 @@ namespace FoldersSynchronization
 {
     public class SynchronizeSession
     {
+        enum Action { Skip, Copy, Update, Delete }
+
+        private class FileAction
+        {
+            public string? FileName { get; set; } = null;
+            public Action Action { get; set; } = Action.Skip;
+        }
         public string SourceFolder { get; set; }
         public string ReplicaFolder { get; set; }
         public bool DryRun { get; set; }
 
         public ILogger? Logger { get; set; }
 
-        public void Start()
+        public void Synchronize(string sourceFolderPath, string replicaFolderPath)
         {
+            Logger?.Information($"Synchronizing source folder: '{sourceFolderPath}'");
+            Logger?.Information($"Replica folder: '{replicaFolderPath}'");
             try
             {
-                List<string> sourceFiles = [..Directory.GetFiles(SourceFolder).Select(Path.GetFileName)];
-                Logger?.Debug($"Source files: {string.Join(", ", sourceFiles)}");
-                List<string> replicaFiles = [..Directory.GetFiles(ReplicaFolder).Select(Path.GetFileName)];
-                Logger?.Debug($"Replica files: {string.Join(", ", replicaFiles)}");
-                var filesToAdd = sourceFiles.Except(replicaFiles).ToList();
-                var filesToRemove = replicaFiles.Except(sourceFiles).ToList();
-                var commonFiles = sourceFiles.Intersect(replicaFiles).ToList();
-                filesToAdd.AddRange(CompareFiles(commonFiles));
-                Logger?.Debug($"Files to sync: {(filesToAdd.Count > 0 ? string.Join(", ", filesToAdd):"no files to sync")}");
-                foreach (var fileName in filesToAdd)
+
+                if (!Directory.Exists(replicaFolderPath))
                 {
-                    string sourceFilePath = Path.Combine(SourceFolder, fileName);
-                    string replicaFilePath = Path.Combine(ReplicaFolder, fileName);
-                    if (DryRun)
+
                     {
-                        Logger?.Information($"[DRY RUN] Would copy '{sourceFilePath}' to '{replicaFilePath}'");
-                    }
-                    else
-                    {
-                        File.Copy(sourceFilePath, replicaFilePath, true);
-                        Logger?.Information($"Copied '{sourceFilePath}' to '{replicaFilePath}'");
+                        Directory.CreateDirectory(replicaFolderPath);
+                        Log.Information($"Replica folder '{replicaFolderPath}' created successfully");
                     }
                 }
-                foreach (var fileName in filesToRemove)
+                List<string> sourceFiles = [.. Directory.GetFiles(sourceFolderPath).Select(Path.GetFileName)];
+                Logger?.Debug($"Files in source folder: {(sourceFiles.Count > 0 ? string.Join(", ", sourceFiles) : "no files in source folder")}");
+                List<string> replicaFiles = [.. Directory.GetFiles(replicaFolderPath).Select(Path.GetFileName)];
+                Logger?.Debug($"Files in replica folder: {(replicaFiles.Count > 0 ? string.Join(", ", replicaFiles) : "no files in replica folder")}");
+                List<FileAction> filesToAdd = [..sourceFiles.Except(replicaFiles)
+                    .Select(f => new FileAction{ FileName = f, Action = Action.Copy })];
+                List<FileAction> filesToRemove = [..replicaFiles.Except(sourceFiles)
+                    .Select(f => new FileAction{ FileName = f, Action = Action.Delete})];
+                List<FileAction> commonFiles = [..sourceFiles.Intersect(replicaFiles)
+                    .Select(f => new FileAction { FileName = f})];
+                filesToAdd.AddRange(CompareFiles(commonFiles, sourceFolderPath, replicaFolderPath));
+                Logger?.Debug($"Files to synchronize: {(filesToAdd.Count > 0 ? string.Join(", ", filesToAdd.Select(f => f.FileName)) : "no files to synchronize")}");
+                foreach (var file in filesToAdd)
                 {
-                    string replicaFilePath = Path.Combine(ReplicaFolder, fileName);
+                    try
+                    {
+                        string sourceFilePath = Path.Combine(sourceFolderPath, file.FileName);
+                        string replicaFilePath = Path.Combine(replicaFolderPath, file.FileName);
+                        if (DryRun)
+                        {
+                            if (file.Action == Action.Copy)
+                            {
+                                Logger?.Information($"[DRY RUN] Would copy: '{file.FileName}'");
+                            }
+                            else
+                            {
+                                Logger?.Information($"[DRY RUN] Would update: '{file.FileName}'");
+                            }
+                        }
+                        else
+                        {
+
+                            File.Copy(sourceFilePath, replicaFilePath, true);
+                            if (file.Action == Action.Copy)
+                            {
+                                Logger?.Information($"Copied: '{file.FileName}'");
+                            }
+                            else
+                            {
+                                Logger?.Information($"Updated: '{file.FileName}'");
+                            }
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger?.Error($"Failed to copy/update file '{file.FileName}': {ex.Message}");
+                        Logger?.Warning($"File '{file.FileName}' will be skipped");
+                    }
+                }
+                foreach (var file in filesToRemove)
+                {
+                    try
+                    {
+                        string replicaFilePath = Path.Combine(replicaFolderPath, file.FileName);
+                        if (DryRun)
+                        {
+                            Logger?.Information($"[DRY RUN] Would delete: '{file.FileName}'");
+                        }
+                        else
+                        {
+
+                            File.Delete(replicaFilePath);
+                            Logger?.Information($"Deleted: '{file.FileName}'");
+                        }
+
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger?.Error($"Failed to delete file '{file.FileName}': {ex.Message}");
+                        Logger?.Warning($"File '{file.FileName}' will be skipped");
+
+                    }
+                }
+                List<string> sourceFolders = [.. Directory.GetDirectories(sourceFolderPath).Select(Path.GetFileName)];
+                Logger?.Debug($"Subfolders in source folder: {(sourceFolders.Count > 0 ? string.Join(", ", sourceFolders) : "no subfolders in source folder")}");
+                List<string> replicaFolders = [.. Directory.GetDirectories(replicaFolderPath).Select(Path.GetFileName)];
+                Logger?.Debug($"Subfolders in replica folder: {(replicaFolders.Count > 0 ? string.Join(", ", replicaFolders) : "no subfolders in replica folder")}");
+                foreach (var folder in sourceFolders)
+                {
+                    string sourceSubfolderPath = Path.Combine(sourceFolderPath, folder);
+                    string replicaSubfolderPath = Path.Combine(replicaFolderPath, folder);
                     if (DryRun)
                     {
-                        Logger?.Information($"[DRY RUN] Would delete '{replicaFilePath}'");
+                        Logger?.Information($"[DRY RUN] Would synchronize subfolder: '{replicaSubfolderPath}'");
+                        Synchronize(sourceSubfolderPath, replicaSubfolderPath);
                     }
                     else
                     {
-                        File.Delete(replicaFilePath);
-                        Logger?.Information($"Deleted '{replicaFilePath}'");
+                        Synchronize(sourceSubfolderPath, replicaSubfolderPath);
+                    }
+                }
+                var foldersToRemove = replicaFolders.Except(sourceFolders).ToList();
+                foreach (var folder in foldersToRemove)
+                {
+
+                    string replicaSubfolderPath = Path.Combine(replicaFolderPath, folder);
+                    try
+                    {
+                        if (DryRun)
+                        {
+                            Logger?.Information($"[DRY RUN] Would delete folder: '{replicaSubfolderPath}'");
+                        }
+                        else
+                        {
+                            Directory.Delete(replicaSubfolderPath, true);
+                            Logger?.Information($"Deleted folder: '{replicaSubfolderPath}'");
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger?.Error($"Failed to delete folder '{replicaSubfolderPath}': {ex.Message}");
+                        Logger?.Warning($"Folder '{replicaSubfolderPath}' will be skipped");
                     }
                 }
 
             }
             catch (Exception ex)
             {
-                Logger?.Error($"Failed to retrieve file names from folder: {ex.Message}");
+                Logger?.Error($"Failed to perform operation: {ex.Message}");
             }
 
-
-            
 
         }
 
-        private List<string> CompareFiles(List<string> commonFiles)
-        { 
-            List<string> filesToSync = new ();
-            foreach (var fileName in commonFiles)
+        private List<FileAction> CompareFiles(List<FileAction> commonFiles, string sourceFolder, string replicaFolder)
+        {
+            List<FileAction> filesToUpdate = new();
+            foreach (var file in commonFiles)
             {
-                string sourceFilePath = Path.Combine(SourceFolder, fileName);
-                string replicaFilePath = Path.Combine(ReplicaFolder, fileName);
-
-                var sourceFileInfo = new FileInfo(sourceFilePath);
-                var replicaFileInfo = new FileInfo(replicaFilePath);
-                if (sourceFileInfo.Length != replicaFileInfo.Length)
-                { 
-                filesToSync.Add(fileName);
-                    Logger?.Debug($"File '{fileName}' differs by size: Source={sourceFileInfo.Length} bytes, Replica={replicaFileInfo.Length} bytes");
-                }
-                else 
+                try
                 {
-                    if (!AreFilesEqualByHashes(sourceFilePath, replicaFilePath))
+
+                    string sourceFilePath = Path.Combine(sourceFolder, file.FileName);
+                    string replicaFilePath = Path.Combine(replicaFolder, file.FileName);
+
+                    var sourceFileInfo = new FileInfo(sourceFilePath);
+                    var replicaFileInfo = new FileInfo(replicaFilePath);
+                    if (sourceFileInfo.Length != replicaFileInfo.Length)
                     {
-                        filesToSync.Add(fileName);
-                        Logger?.Debug($"File '{fileName}' differs by hash codes");
+                        file.Action = Action.Update;
+                        filesToUpdate.Add(file);
+                        Logger?.Debug($"File '{file.FileName}' differs by size: source={sourceFileInfo.Length} bytes, replica={replicaFileInfo.Length} bytes");
+                    }
+                    else
+                    {
+                        if (!AreFilesEqualByHashes(sourceFilePath, replicaFilePath))
+                        {
+                            file.Action = Action.Update;
+                            filesToUpdate.Add(file);
+                            Logger?.Debug($"File '{file.FileName}' differs by hash codes");
+                        }
+                        Logger?.Debug($"Skipped: '{file.FileName}' (no changes)");
                     }
                 }
+                catch (Exception ex)
+                {
+                    Logger?.Error($"Failed to compare file: {ex.Message}");
+                    Logger?.Warning($"File '{file.FileName}' will be skipped");
+                }
+
 
             }
-            return filesToSync;
+            return filesToUpdate;
         }
 
         static private bool AreFilesEqualByHashes(string sourceFilePath, string replicaFilePath)

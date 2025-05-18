@@ -8,9 +8,9 @@ namespace FoldersSynchronization
         static void Main(string[] args)
         {
 
-            if (args.Length < 4 || args.Length > 5)
+            if (args.Length < 4 || args.Length > 6)
             {
-                Console.WriteLine("Usage: <source folder> <replica folder> <log file> <sync interval (seconds)> [dry run]");
+                Console.WriteLine("Usage: <source folder> <replica folder> <log file> <sync interval (seconds)> [log level] [dry run]");
                 Environment.Exit(1);
             }
 
@@ -18,22 +18,21 @@ namespace FoldersSynchronization
             string replicaFolder = args[1];
             string logFile = args[2];
             string syncIntervalArg = args[3];
-            bool dryRun = args.Length == 5 && args[4].Equals("dryrun", StringComparison.OrdinalIgnoreCase);
+            string? logLevelArg = args.Length > 4 ? args[4] : "inf";
+            bool dryRun = args.Length == 6 && args[5].Equals("dryrun", StringComparison.OrdinalIgnoreCase);
 
-            if (ValidateArguments(sourceFolder, replicaFolder, logFile, syncIntervalArg, out int syncInterval))
+            if (ValidateArguments(sourceFolder, replicaFolder, logFile, logLevelArg, syncIntervalArg,  out int syncInterval))
             {
-                Log.Information("Synchronization is starting...");
                 var session = new SynchronizeSession
                 {
-                    SourceFolder = sourceFolder,
-                    ReplicaFolder = replicaFolder,
-                    DryRun = dryRun,
+                    DryRun = false, //dryRun,
                     Logger = Log.Logger
                 };
                 while (true)
                 {
-                    session.Start();
-                    Log.Information($"Synchronization completed");
+                    Log.Information($"Synchronization is starting");
+                    session.Synchronize(sourceFolder,replicaFolder);
+                    Log.Information($"Synchronization completed\n");
                     Thread.Sleep(syncInterval * 1000);
                 }
 
@@ -41,7 +40,7 @@ namespace FoldersSynchronization
             Log.Information("Application shutdown complete");
         }
 
-        private static bool ValidateArguments(string sourceFolder, string replicaFolder, string logFile, string syncIntervalArg, out int syncInterval)
+        private static bool ValidateArguments(string sourceFolder, string replicaFolder, string logFile, string logLevelArg, string syncIntervalArg, out int syncInterval)
         {
             syncInterval = 0;
             try
@@ -59,8 +58,17 @@ namespace FoldersSynchronization
                 Environment.Exit(1);
             }
 
+            Serilog.Events.LogEventLevel logLevel = logLevelArg.ToLower() switch
+            {
+                "dbg" => Serilog.Events.LogEventLevel.Debug,
+                "inf" => Serilog.Events.LogEventLevel.Information,
+                "wrn" => Serilog.Events.LogEventLevel.Warning,
+                "err" => Serilog.Events.LogEventLevel.Error,
+                _ => Serilog.Events.LogEventLevel.Information
+            };
+
             Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Debug()
+                .MinimumLevel.Is(logLevel)
                 .WriteTo.Console(outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3} - {Message:lj}{NewLine}")
                 .WriteTo.File(logFile, rollingInterval: RollingInterval.Day, outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3} - {Message:lj}{NewLine}")
                 .CreateLogger();
@@ -69,20 +77,6 @@ namespace FoldersSynchronization
             if (!Directory.Exists(sourceFolder))
             {
                 Log.Error($"Source folder '{sourceFolder}' does not exist");
-                return false;
-            }
-
-            try
-            {
-                if (!Directory.Exists(replicaFolder))
-                {
-                    Directory.CreateDirectory(replicaFolder);
-                    Log.Information($"Replica folder '{replicaFolder}' created successfully");
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"Could not create replica folder '{replicaFolder}'. {ex.Message}");
                 return false;
             }
 
