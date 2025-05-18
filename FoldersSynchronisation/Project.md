@@ -53,9 +53,9 @@ ________________________________________________________________________________
 
 ____________________________________________________________________________________________
 **Steps to implement:**
-1. Parse command line arguments and check parameters for errors
-1. Log output to the console and log file
-1. Create a loop for synchronization
+1. Parse command line arguments and check parameters for errors - done
+1. Log output to the console and log file - done
+1. Create a loop for synchronization - done
 1. Create a method for synchronization a folder with only files: 
 	a. compare
 	b. create folder
@@ -82,7 +82,7 @@ Validation arguments
 Synchronization  
 1. If the source folder in one of the syncs was cleared, should the program remove all files from the replica folder or ask a confirmation?
 1. If the source folder was deleted, should the program remove all the replica folder including files or ask a confirmation?
-1. What about hidden/system files/folders? Should they be copied or ignored?
+1. What about hidden/system files/folders? Should they be copied or ignored? By default all the files are synchronized, additional filter is needed if such files shouldn't be copied
 1. If synchronization interval is set to 0, should the program synchronize only once or infinitely? - solved in the code, must be greater than 0
 1. If synchronization interval is less than the synchronization time? and synchronization time grows infinitely? - describe in notes possible solution
 1. The case if file is editing during the synchronization process? Should the program wait for the file to be closed or skip it?
