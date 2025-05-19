@@ -36,7 +36,7 @@ namespace FoldersSynchronization
 
                     {
                         Directory.CreateDirectory(replicaFolderPath);
-                        Log.Information($"Replica folder '{replicaFolderPath}' created successfully");
+                        Logger?.Information($"Replica folder '{replicaFolderPath}' created successfully");
                     }
                 }
                 Logger?.Information($"Scanning source folder '{sourceFolderPath}'");

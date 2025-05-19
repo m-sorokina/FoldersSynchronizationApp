@@ -64,19 +64,19 @@ ________________________________________________________________________________
 	e. remove file - done
 1. Create a method for synchronization with nested folders (folders and subfolders with files) - done
 1. Create a test project with unit tests for the methods
-1. Add additional arguments validation: 1,2,3,4 from questions validation section
-1. Add configuration file for the application (e.g. appsettings.json) to store default values for the parameters
+1. Add additional arguments validation: 1,2,3,4 from questions validation section - done
 1. Add additional argument for log level changing - done
 ____________________________________________________________________________________________
 **Questions:**  
 General  
 1. How the program should be ended? (Ctrl+C, close the console window, etc.)  
+1. Should a configuration file for the application to store default values for the parameters be created?
  
 Validation arguments  
-1. If replica folder is defined as a source folder, should the program stop?
-1. If replica folder is defined as subfolder of the source folder, should the program stop?
-1. If the source folder is defined as a subfolder of the replica folder, should the program stop?
-1. The same question about log file - can it be a part of replica/source folder?
+1. If replica folder is defined as a source folder, should the program stop? - added
+1. If replica folder is defined as subfolder of the source folder, should the program stop? -  added
+1. If the source folder is defined as a subfolder of the replica folder, should the program stop? - added
+1. The same question about log file - can it be a part of replica/source folder? - added
 1. The synchronization interval should be checked not less than some time and not more than some time? (e.g. 1 second and 1 hour) - should be described in readme  
 
 Synchronization  
