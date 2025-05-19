@@ -1,4 +1,4 @@
-# Folder Synchronization Console App (C#)
+## Folder Synchronization Console App (C#)
 
 A simple C# console application that synchronizes data from a source folder to a replica folder:
 - One-way synchronization from source to replica  
