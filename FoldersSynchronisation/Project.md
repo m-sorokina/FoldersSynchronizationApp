@@ -22,7 +22,7 @@ The solution should be presented in the form of a link to the public GitHub repo
 
 __________________________________________________________________________________________
 **Scenario:**
-1. Enter command line arguments in the console:	source folder, replica folder, log file, synchronization interval, dry run (optional)
+1. Enter command line arguments in the console:	source folder, replica folder, log file, synchronization interval, log level (optional), dry run (optional)
    a. Source folder - path to the source folder (e.g. C:\Users\user\Documents\source)
    b. Replica folder - path to the replica folder (e.g. C:\Users\user\Documents\replica)
    c. Log file - path to the log file (e.g. C:\Users\user\Documents\log.txt)
@@ -52,20 +52,19 @@ ________________________________________________________________________________
 5. File with hash codes?
 
 ____________________________________________________________________________________________
-**Steps to implement:**
-1. Parse command line arguments and check parameters for errors - done
-1. Log output to the console and log file - done
-1. Create a loop for synchronization - done
+**To Do:**
+1. Parse command line arguments and check parameters for errors - *done*
+1. Log output to the console and log file - *done*
+1. Create a loop for synchronization - *done*
 1. Create a method for synchronization a folder with only files: 
-	a. compare - done
-	b. create folder - done
-	c. copy file - done
-	d. remove folder - done
-	e. remove file - done
-1. Create a method for synchronization with nested folders (folders and subfolders with files) - done
-1. Create a test project with unit tests for the methods
-1. Add additional arguments validation: 1,2,3,4 from questions validation section - done
-1. Add additional argument for log level changing - done
+	a. compare - *done*
+	b. create folder -*done*
+	c. copy file - *done*
+	d. remove folder - *done*
+	e. remove file - *done*
+1. Create a method for synchronization with nested folders (folders and subfolders with files) - *done*
+1. Add additional arguments validation: 1,2,3,4 from questions validation section - *done*
+1. Add additional argument for log level changing - *done*
 ____________________________________________________________________________________________
 **Questions:**  
 General  
@@ -73,20 +72,21 @@ General
 1. Should a configuration file for the application to store default values for the parameters be created?
  
 Validation arguments  
-1. If replica folder is defined as a source folder, should the program stop? - added
-1. If replica folder is defined as subfolder of the source folder, should the program stop? -  added
-1. If the source folder is defined as a subfolder of the replica folder, should the program stop? - added
-1. The same question about log file - can it be a part of replica/source folder? - added
+1. If replica folder is defined as a source folder, should the program stop? - *added*
+1. If replica folder is defined as subfolder of the source folder, should the program stop? -  *added*
+1. If the source folder is defined as a subfolder of the replica folder, should the program stop? - *added*
+1. The same question about log file - can it be a part of replica/source folder? - *added*
 1. The synchronization interval should be checked not less than some time and not more than some time? (e.g. 1 second and 1 hour) - should be described in readme  
 
 Synchronization  
 1. If the source folder in one of the syncs was cleared, should the program remove all files from the replica folder or ask a confirmation?
 1. If the source folder was deleted, should the program remove all the replica folder including files or ask a confirmation?
 1. What about hidden/system files/folders? Should they be copied or ignored? By default all the files are synchronized, additional filter is needed if such files shouldn't be copied
-1. If synchronization interval is set to 0, should the program synchronize only once or infinitely? - solved in the code, must be greater than 0
+1. If synchronization interval is set to 0, should the program synchronize only once or infinitely? - *solved in the code, must be greater than 0*
 1. If synchronization interval is less than the synchronization time? and synchronization time grows infinitely? - describe in readme possible solution
-1. The case if file is editing during the synchronization process? Should the program wait for the file to be closed or skip it?
+1. The case if file is editing during the synchronization process? Should the program wait for the file to be closed or skip it? - *skip*
 1. If the program is interrupted during the synchronization process, should it continue from the last point or start from the beginning?
+1. Symbolic links handling
 
 
 

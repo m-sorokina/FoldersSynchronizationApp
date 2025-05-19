@@ -2,7 +2,7 @@
   "profiles": {
     "FoldersSynchronisation": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\Users\\User\\TestFrom\\\r\nC:\\Users\\User\\TestTo\r\nC:\\Users\\User\\FoldersSyncLogs\\folders_sync.log\r\n60\r\ninf\r\ndryrun"
+      "commandLineArgs": "C:\\Users\\User\\TestFrom\\\r\nC:\\Users\\User\\TestTo\r\nC:\\Users\\User\\FoldersSyncLogs\\folders_sync.log\r\n60\r\ndbg"
     }
   }
 }

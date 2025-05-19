@@ -1,11 +1,6 @@
 ﻿using Serilog;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FoldersSynchronization
 {
@@ -66,7 +61,7 @@ namespace FoldersSynchronization
                 List<string> replicaFolders = [.. Directory.GetDirectories(replicaFolderPath).Select(Path.GetFileName)];
                 Logger?.Debug($"Subfolders in replica folder: {(replicaFolders.Count > 0 ? string.Join(", ", replicaFolders) : "no subfolders in replica folder")}");
                 var foldersToRemove = replicaFolders.Except(sourceFolders).ToList();
-                Logger?.Debug($"Subfolders to synchronize: {((sourceFolders.Count + foldersToRemove.Count) > 0 ? string.Join(",", sourceFolders.Concat(foldersToRemove)) : "no subfolders to synchronize")}");
+                Logger?.Debug($"Subfolders to synchronize: {((sourceFolders.Count + foldersToRemove.Count) > 0 ? string.Join(", ", sourceFolders.Concat(foldersToRemove)) : "no subfolders to synchronize")}");
                 Logger?.Information($"Subfolders to update: {(sourceFolders.Count > 0 ? sourceFolders.Count : 0)}, to delete: {(foldersToRemove.Count > 0 ? foldersToRemove.Count : 0)}");
                 DeleteSubfolders(foldersToRemove, replicaFolderPath);
                 UpdateSubfolders(sourceFolders, sourceFolderPath, replicaFolderPath);
