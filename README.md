@@ -13,13 +13,13 @@ ________________________________________________________________________________
 ### Notes:  
 1. The project is synchronous
 1. Command-line execution: manual argument parsing was used to keep the solution simple  
-     > If more complex configuration is required, a more flexible configuration system could be introduced 
+    > If more complex configuration is required, a more flexible configuration system could be introduced 
 1. Argument validation: basic validation ensures that source, replica and log paths are not equal or subfolders of one another  
 1. Synchronization interval  
    - The application performs an initial synchronization, waits for the specified interval, then repeats the process  
    - Value of 0 is not allowed for the interval, there is no upper limit  
-     > In more advanced scenarios, synchronization could be scheduled instead of timed  
-     > However, that would require handling sync duration more carefully - for example, if the source folder grows significantly, a single sync cycle may take longer than the interval itself  
+    > In more advanced scenarios, synchronization could be scheduled instead of timed  
+    > However, that would require handling sync duration more carefully - for example, if the source folder grows significantly, a single sync cycle may take longer than the interval itself  
 1. Synchronization process: the core behavior and basic error handling were implemented as follows:  
      - all files in the source folder are scanned and grouped by name: to copy (missing in replica), to remove (missing in source), to check additionally (exist in both)  
      - files that exist in both folders are compared by size and hash code  
