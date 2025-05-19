@@ -31,6 +31,9 @@ namespace FoldersSynchronization
 
                     {
                         Directory.CreateDirectory(replicaFolderPath);
+                        Directory.SetCreationTime(replicaFolderPath, Directory.GetCreationTime(sourceFolderPath));
+                        Directory.SetLastAccessTime(replicaFolderPath, Directory.GetLastAccessTime(sourceFolderPath));
+                        Directory.SetLastWriteTime(replicaFolderPath, Directory.GetLastWriteTime(sourceFolderPath));
                         Logger?.Information($"Replica folder '{replicaFolderPath}' created successfully");
                     }
                 }
@@ -154,6 +157,11 @@ namespace FoldersSynchronization
                     {
 
                         File.Copy(sourceFilePath, replicaFilePath, true);
+                        File.SetAttributes(replicaFilePath, File.GetAttributes(sourceFilePath));
+                        File.SetCreationTime(replicaFilePath, File.GetCreationTime(sourceFilePath));
+                        File.SetLastAccessTime(replicaFilePath, File.GetLastAccessTime(sourceFilePath));
+                        File.SetLastWriteTime(replicaFilePath, File.GetLastWriteTime(sourceFilePath));
+
                         if (file.Action == Action.Copy)
                         {
                             Logger?.Information($"Copied: '{file.FileName}'");
