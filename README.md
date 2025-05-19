@@ -31,11 +31,12 @@ ________________________________________________________________________________
 1. Additional considerations  
      - hidden/system files and folders are currently not filtered - they will be copied  
      - to skip them, an additional filter should be implemented, the same as a parameter to exclude certain file types    
-     - symbolic links are not handled  
+     - symbolic links are not handled
+     - rename of the source folder is not handled  
 
 ### Cases not covered in this implementation:
    - if many files are deleted in the source during a sync cycle, should all replica files be removed automatically, or should a confirmation be required?
-   - if the source folder is renamed or deleted, should the replica folder be deleted?
+   - if the source folder is deleted, should the replica folder be deleted? 
    - behavior when the sync process is interrupted (e.g., closed mid-run)
    - handling files being updated during sync (locked files are skipped and processed in the next sync cycle)  
    - logging or measuring sync duration/performance
